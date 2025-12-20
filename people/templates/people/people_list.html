@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% load people_extras %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h1 class="mb-1">Balances</h1>
+      <p class="text-secondary mb-2 small">
+        This shows active financial relationships (who owes whom).
+      </p>
+
+  </div>
+
+  <div class="d-flex gap-2 align-items-center">
+    {% if show_untracked %}
+      <a href="{% url 'people-list' %}" class="btn btn-sm btn-outline-secondary">Hide untracked</a>
+    {% else %}
+      <a href="{% url 'people-list' %}?show_untracked=1" class="btn btn-sm btn-outline-secondary">Show untracked / archived</a>
+    {% endif %}
+    <a href="{% url 'person-add' %}" class="btn btn-sm btn-primary">+ Add person</a>
+  </div>
+</div>
+
+<form method="get" class="mb-3">
+  <div class="d-flex flex-wrap gap-2 align-items-center">
+
+    <!-- Search input -->
+    <input
+      type="text"
+      name="q"
+      class="form-control"
+      placeholder="Search people…"
+      value="{{ search }}"
+      style="max-width: 320px;"
+    >
+
+    {% if show_untracked %}
+      <input type="hidden" name="show_untracked" value="1">
+    {% endif %}
+
+    <!-- Search button -->
+    <button class="btn btn-outline-primary" type="submit">
+      Search
+    </button>
+
+    <!-- Clear button -->
+    {% if search %}
+      <a
+        href="{% url 'people-list' %}{% if show_untracked %}?show_untracked=1{% endif %}"
+        class="btn btn-outline-secondary"
+      >
+        Clear
+      </a>
+    {% endif %}
+
+  </div>
+</form>
+
+
+<div class="card mb-3">
+  <div class="card-body">
+    <p class="text-secondary mb-0">
+      This shows who you owe and who owes you, based on the entries you link to people.
+      {% if not show_untracked %}Archived / untracked people are hidden — click "Show untracked / archived" to view them.{% endif %}
+    </p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    {% if people %}
+      <div class="table-responsive">
+        <table class="table table-striped table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Party</th>
+              <th>Status</th>
+              <th class="text-end">Net Balance</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in people %}
+              {% with bal=p.net_balance|default:p.balance %}
+                <tr class="align-middle {% if p.archived %}table-secondary{% endif %}">
+                  
+                  <td data-label="Party">
+                    <div class="d-flex flex-column flex-md-row align-items-end align-items-md-center gap-1">
+                      <span class="fw-semibold">{{ p.name }}</span>
+
+                      {% if p.archived %}
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle ms-md-2">
+                          archived
+                        </span>
+                      {% elif p.tracking_preference|default:""|lower == "no_track" %}
+                        <span class="badge bg-warning text-dark border border-warning ms-md-2">
+                          not tracking
+                        </span>
+                      {% endif %}
+                    </div>
+                  </td>
+
+                  <td data-label="Status">
+                    {% if p.archived %}
+                      <small class="text-secondary">Not tracked — archived</small>
+                    {% else %}
+                      {% if bal > 0 %}
+                        {{ p.name }} owes you
+                      {% elif bal < 0 %}
+                        You owe {{ p.name }}
+                      {% else %}
+                        Settled
+                      {% endif %}
+                    {% endif %}
+                  </td>
+
+                  <td class="text-end" data-label="Net Balance">
+                    {% if p.archived %}
+                      {% if bal %}
+                        <small class="text-secondary">{{ currency }}{{ bal }}</small>
+                      {% else %}
+                        <small class="text-secondary">—</small>
+                      {% endif %}
+                    {% else %}
+                      {% if bal > 0 %}
+                        <span class="fw-semibold text-success">
+                          {{ currency }}{{ bal }}
+                        </span>
+                      {% elif bal < 0 %}
+                        <span class="fw-semibold text-danger">
+                          {{ currency }}{{ bal|abs_val }}
+                        </span>
+                      {% else %}
+                        <span class="text-secondary">—</span>
+                      {% endif %}
+                    {% endif %}
+                  </td>
+
+                  <td class="text-end">
+                    <a href="{% url 'person-detail' p.pk %}?next={{ request.get_full_path|urlencode }}" class="btn btn-sm btn-outline-secondary">
+                      View details
+                    </a>
+                  </td>
+
+                </tr>
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="mb-0 text-secondary">
+        You don't have any people tracked yet. Once we start linking expenses/income
+        to people, they will show up here.
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

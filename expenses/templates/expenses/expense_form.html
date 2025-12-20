@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="mb-3">
+    {% if is_edit %}
+      Edit Expense
+    {% else %}
+      Add Expense
+    {% endif %}
+  </h1>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post" class="row g-3">
+        {% csrf_token %}
+        {% if next %}
+        <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+      
+
+        <!-- Date -->
+        <div class="col-md-3">
+          <label class="form-label">Date</label>
+          {{ form.date }}
+          {% if form.date.errors %}
+            <div class="text-danger small">{{ form.date.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Category + custom -->
+        <div class="col-md-3">
+          <label class="form-label">Category</label>
+          {{ form.category }}
+          {% if form.category.errors %}
+            <div class="text-danger small">{{ form.category.errors.0 }}</div>
+          {% endif %}
+
+          <small class="text-secondary d-block mt-1">
+            Or create new (if you type here, dropdown choice will be ignored):
+          </small>
+          <input type="text"
+                 name="new_category"
+                 class="form-control form-control-sm mt-1"
+                 placeholder="e.g. Stationery, Gym, Gifts"
+                 value="{{ request.POST.new_category }}">
+        </div>
+
+        <!-- Amount -->
+        <div class="col-md-3">
+          <label class="form-label">Amount</label>
+          {{ form.amount }}
+          {% if form.amount.errors %}
+            <div class="text-danger small">{{ form.amount.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Payment Type -->
+        <div class="col-md-3">
+          <label class="form-label">Payment Type</label>
+          {{ form.payment_type }}
+          {% if form.payment_type.errors %}
+            <div class="text-danger small">{{ form.payment_type.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="col-12">
+          <label class="form-label">Description</label>
+          {{ form.description }}
+          {% if form.description.errors %}
+            <div class="text-danger small">{{ form.description.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Q1: Where did the money come from? -->
+        <div class="col-12">
+          <label class="form-label d-block">Where did the money come from?</label>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input"
+                   type="radio"
+                   name="source_kind"
+                   id="sourceOwn"
+                   value="own"
+                   {% if source_kind|default:"own" == 'own' %}checked{% endif %}>
+            <label class="form-check-label" for="sourceOwn">
+              My own money
+            </label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input"
+                   type="radio"
+                   name="source_kind"
+                   id="sourceBorrowed"
+                   value="borrowed"
+                   {% if source_kind == 'borrowed' %}checked{% endif %}>
+            <label class="form-check-label" for="sourceBorrowed">
+              Borrowed money
+            </label>
+          </div>
+        </div>
+
+        <!-- Lender name (only if borrowed) -->
+        <div class="col-md-6" id="borrowedFromContainer" style="display: none;">
+          <label class="form-label">Borrowed from (Name)</label>
+          {{ form.borrowed_from }}
+          {% if form.borrowed_from.errors %}
+            <div class="text-danger small">{{ form.borrowed_from.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Q2: Who was it for? -->
+        <div class="col-12">
+          <label class="form-label d-block">Who was this for?</label>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input"
+                  type="radio"
+                  name="beneficiary_kind"
+                  id="benefMe"
+                  value="me"
+                  {% if beneficiary_kind_default != 'other' %}checked{% endif %}>
+            <label class="form-check-label" for="benefMe">
+              Me
+            </label>
+          </div>
+
+          <div class="form-check form-check-inline">
+            <input class="form-check-input"
+                  type="radio"
+                  name="beneficiary_kind"
+                  id="benefOther"
+                  value="other"
+                  {% if beneficiary_kind_default == 'other' %}checked{% endif %}>
+            <label class="form-check-label" for="benefOther">
+              Someone else
+            </label>
+          </div>
+        </div>
+
+
+        <!-- Paid for (only if beneficiary = other) -->
+        <div class="col-md-6" id="paidForContainer" style="display: none;">
+          <label class="form-label">Paid for (Name)</label>
+          {{ form.paid_for }}
+          {% if form.paid_for.errors %}
+            <div class="text-danger small">{{ form.paid_for.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <!-- Buttons -->
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">
+            {% if is_edit %}Update{% else %}Save{% endif %}
+          </button>
+          <a href="{{ next }}" class="btn btn-secondary ms-2">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JS: toggle borrowed/paid-for -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const sourceOwn = document.getElementById('sourceOwn');
+      const sourceBorrowed = document.getElementById('sourceBorrowed');
+      const borrowedFromContainer = document.getElementById('borrowedFromContainer');
+      const borrowedFromInput = document.querySelector('input[name="borrowed_from"]');
+
+      const benefMe = document.getElementById('benefMe');
+      const benefOther = document.getElementById('benefOther');
+      const paidForContainer = document.getElementById('paidForContainer');
+      const paidForInput = document.querySelector('input[name="paid_for"]');
+
+      function updateSourceUI() {
+        if (sourceBorrowed && sourceBorrowed.checked) {
+          borrowedFromContainer.style.display = 'block';
+          if (borrowedFromInput) borrowedFromInput.required = true;
+        } else {
+          borrowedFromContainer.style.display = 'none';
+          if (borrowedFromInput) borrowedFromInput.required = false;
+        }
+      }
+
+      function updateBeneficiaryUI() {
+        if (benefOther && benefOther.checked) {
+          paidForContainer.style.display = 'block';
+          if (paidForInput) paidForInput.required = true;
+        } else {
+          paidForContainer.style.display = 'none';
+          if (paidForInput) paidForInput.required = false;
+        }
+      }
+
+      updateSourceUI();
+      updateBeneficiaryUI();
+
+      if (sourceOwn) sourceOwn.addEventListener('change', updateSourceUI);
+      if (sourceBorrowed) sourceBorrowed.addEventListener('change', updateSourceUI);
+      if (benefMe) benefMe.addEventListener('change', updateBeneficiaryUI);
+      if (benefOther) benefOther.addEventListener('change', updateBeneficiaryUI);
+    });
+  </script>
+  <!-- JS: category dropdown vs new_category coordination -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const categorySelect = document.querySelector('select[name="category"]');
+        const newCategoryInput = document.querySelector('input[name="new_category"]');
+
+        if (!categorySelect || !newCategoryInput) return;
+
+        // When user types new category → clear dropdown
+        newCategoryInput.addEventListener('input', function () {
+            if (newCategoryInput.value.trim() !== '') {
+                categorySelect.value = '';  // unset dropdown
+            }
+        });
+
+        // When dropdown changes → clear custom input
+        categorySelect.addEventListener('change', function () {
+            if (categorySelect.value) {
+                newCategoryInput.value = '';
+            }
+        });
+    });
+  </script>
+{% endblock %}

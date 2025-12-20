@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<section class="hero-section text-center">
+    <div class="container" style="max-width: 800px; position: relative; z-index: 2;">
+        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 mb-4 text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">
+            v1.0 Public Beta
+        </span>
+        <h1 class="display-4 fw-bold mb-3 hero-title">
+            Track expenses, income, <br>
+            and <span class="text-primary">people balances.</span>
+        </h1>
+        <p class="lead hero-subtitle mb-5 mx-auto opacity-75" style="max-width: 600px;">
+            Kharcha is a simple finance app designed for real life. 
+            No clutter. No forced automation. Just clear records.
+        </p>
+        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mb-5">
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg fw-bold px-5 shadow-lg">Get Started</a>
+            <a href="{% url 'guest_login' %}" class="btn btn-guest btn-lg px-5 d-flex align-items-center justify-content-center">
+                <i class="bi bi-incognito me-2"></i> Try Demo
+            </a>
+        </div>
+        <div class="browser-window mx-auto mt-5">
+            <div class="browser-header">
+                <span class="dot bg-danger"></span><span class="dot bg-warning"></span><span class="dot bg-success"></span>
+            </div>
+            <img src="{% static 'images/dashboard-screenshot.png' %}" alt="App Dashboard" class="img-fluid rounded-bottom">
+        </div>
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--bg);">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-5">
+                <h2 class="fw-bold mb-4 display-6">Money is messy.<br>Your app shouldn't be.</h2>
+                <p class="text-muted fs-5 mb-4">Most expense apps are great at tracking "coffee" but fail when real life happens.</p>
+                <ul class="list-unstyled">
+                    <li class="d-flex mb-3 align-items-center text-muted"><i class="bi bi-x-circle text-danger me-3 fs-5"></i> Borrowing money from friends</li>
+                    <li class="d-flex mb-3 align-items-center text-muted"><i class="bi bi-x-circle text-danger me-3 fs-5"></i> Paying on behalf of others</li>
+                    <li class="d-flex mb-3 align-items-center text-muted"><i class="bi bi-x-circle text-danger me-3 fs-5"></i> Partial repayments & debts</li>
+                </ul>
+            </div>
+            <div class="col-lg-7">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="card p-4 h-100 border-0 shadow-sm" style="background: var(--surface);">
+                            <i class="bi bi-people fs-1 text-primary mb-3"></i>
+                            <h5 class="fw-bold">People-First</h5>
+                            <p class="text-muted small mb-0">Track who owes you and who you owe with a dedicated ledger.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4 h-100 border-0 shadow-sm" style="background: var(--surface);">
+                            <i class="bi bi-shield-check fs-1 text-success mb-3"></i>
+                            <h5 class="fw-bold">No Hidden Math</h5>
+                            <p class="text-muted small mb-0">No automatic deductions. You confirm every balance change manually.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="card p-4 h-100 border-0 shadow-sm" style="background: var(--surface);">
+                            <i class="bi bi-layout-text-window-reverse fs-1 text-warning mb-3"></i>
+                            <h5 class="fw-bold">Contextual Tracking</h5>
+                            <p class="text-muted small mb-0">Log expenses with context: Was it for you? Was it borrowed money?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--surface);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-5 order-lg-1 order-2">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-bold">Killer Feature</span>
+                </div>
+                <h2 class="fw-bold mb-3">Manage relationships,<br>not just transactions.</h2>
+                <p class="text-muted fs-5 mb-4">Kharcha doesn't just track spending. It tracks <strong>debts</strong>.</p>
+                <ul class="list-unstyled mb-4">
+                    <li class="d-flex mb-3 align-items-start"><i class="bi bi-check-circle-fill text-success mt-1 me-3"></i><span class="text-muted">See exactly who owes you (Green) vs. who you owe (Red).</span></li>
+                    <li class="d-flex mb-3 align-items-start"><i class="bi bi-check-circle-fill text-success mt-1 me-3"></i><span class="text-muted">Settle debts partially or fully with one click.</span></li>
+                    <li class="d-flex mb-3 align-items-start"><i class="bi bi-check-circle-fill text-success mt-1 me-3"></i><span class="text-muted">Keep a permanent ledger history for every friend.</span></li>
+                </ul>
+            </div>
+            <div class="col-lg-7 order-lg-2 order-1 mb-5 mb-lg-0">
+                <div class="spotlight-frame ms-lg-5">
+                    <img src="{% static 'images/people-screenshot.png' %}" alt="People Balances Interface" class="img-fluid rounded-3 shadow-lg border">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-padding" style="background-color: var(--bg);">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Everything you need</h2>
+            <p class="text-muted">Six reasons to switch to Kharcha.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4"><div class="card feature-card p-4 border-0 bg-transparent"><div class="feature-icon"><i class="bi bi-receipt"></i></div><h5 class="fw-bold">Smart Expenses</h5><p class="text-muted small">Log date, category, and source.</p></div></div>
+            <div class="col-md-4"><div class="card feature-card p-4 border-0 bg-transparent"><div class="feature-icon"><i class="bi bi-wallet2"></i></div><h5 class="fw-bold">Clean Income</h5><p class="text-muted small">Log seperate sources of income.</p></div></div>
+            <div class="col-md-4"><div class="card feature-card p-4 border-0 bg-transparent"><div class="feature-icon"><i class="bi bi-person-lines-fill"></i></div><h5 class="fw-bold">Debt Manager</h5><p class="text-muted small">See where you stand instantly.</p></div></div>
+            <div class="col-md-4"><div class="card feature-card p-4 border-0 bg-transparent"><div class="feature-icon"><i class="bi bi-journal-text"></i></div><h5 class="fw-bold">Transparent Ledger</h5><p class="text-muted small">Every change is logged visibly.</p></div></div>
+            <div class="col-md-4"><div class="card feature-card p-4 border-0 bg-transparent"><div class="feature-icon"><i class="bi bi-magic"></i></div><h5 class="fw-bold">Adjust Wizard</h5><p class="text-muted small">Handle partial repayments effortlessly.</p></div></div>
+            <div class="col-md-4"><div class="card feature-card p-4 border-0 bg-transparent"><div class="feature-icon"><i class="bi bi-file-earmark-spreadsheet"></i> </div><h5 class="fw-bold">100% Data Ownership</h5><p class="text-muted small">Filter and <span class="text-primary fw-bold">export to CSV</span> anytime.</p></div></div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 text-center" style="background-color: var(--surface);">
+    <div class="container py-4">
+        <h2 class="fw-bold mb-3">Start taking control today.</h2>
+        <p class="text-muted mb-4">No credit card required. Free forever for personal use.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg fw-bold px-4">Create Account</a>
+            <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-4">Login</a>
+        </div>
+    </div>
+</section>
+
+<footer class="py-5 text-center" style="background-color: var(--bg); border-top: 1px solid var(--border);">
+    <div class="container">
+        <p class="text-muted mb-3 small mx-auto" style="max-width: 600px; line-height: 1.8;">
+            Hi, I am <strong>Prateek</strong>. <br>
+            I built Kharcha as a project to explore real-world expense tracking, 
+            people balances, and UX decisions around financial data.
+        </p>
+        <div class="d-flex justify-content-center gap-4">
+            <a href="YOUR_GITHUB_LINK" target="_blank" class="dev-link" title="View Source Code"><i class="bi bi-github"></i></a>
+            <a href="YOUR_LINKEDIN_LINK" target="_blank" class="dev-link" title="Connect"><i class="bi bi-linkedin"></i></a>
+            <a href="mailto:your_email@example.com" class="dev-link" title="Contact"><i class="bi bi-envelope-fill"></i></a>
+        </div>
+    </div>
+</footer>
+
+{% endblock %}

@@ -1,0 +1,493 @@
+{% extends "base.html" %}
+{% load people_extras %}
+
+
+{% block content %}
+{% url 'people-list' as balances_home %}
+<div class="mb-3">
+        <a href="{{ request.GET.next|default:balances_home }}" 
+           onclick="if (history.length > 1) { history.back(); return false; }"
+           class="text-decoration-none text-secondary d-flex align-items-center hover-primary">
+            <i class="bi bi-arrow-left me-2"></i> Back to Balances
+        </a>
+</div>
+
+<h1 class="mb-3">Balance with {{ person.name }}</h1>
+
+{# Archived / not-tracking banner + restore actions #}
+{% if person.archived %}
+  <div class="alert alert-warning">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <strong>Not tracking balances with {{ person.name }}</strong>
+        <div class="small text-secondary">
+          This person is archived and hidden from the main People list.
+          Their previous ledger is kept for history and can be restored.
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <!-- Reapply previous balance -->
+        <form method="post" action="{% url 'person-restore' person.pk %}" class="d-inline">
+          {% csrf_token %}
+          <input type="hidden" name="restore_action" value="reapply">
+          <button type="submit" class="btn btn-sm btn-primary">Restore &amp; reapply balance</button>
+        </form>
+      </div>
+    </div>
+  </div>
+{% elif person.tracking_preference|default:""|lower == "no_track" %}
+  <div class="alert alert-info">
+    <strong>Not tracking balances with {{ person.name }}</strong>
+    <div class="small text-secondary">
+      You have chosen not to track balances with this person. They will be hidden from the main People list.
+    </div>
+    <div class="mt-2">
+      <form method="post" action="{% url 'people-set-track' person.pk %}" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-primary">Enable tracking</button>
+      </form>
+      <a href="{% url 'person-change-tracking' person.pk %}" class="btn btn-sm btn-outline-secondary ms-2">Change preference</a>
+    </div>
+  </div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <!-- Status card -->
+  <div class="col-md-4">
+    <div class="card border-primary">
+      <div class="card-body">
+        <h5 class="card-title">Current status</h5>
+        <p class="card-text mb-2">
+          {% if balance > 0 %}
+            <strong>{{ person.name }}</strong> owes you <strong>{{ currency }}{{ balance }}</strong>.
+          {% elif balance < 0 %}
+            You owe <strong>{{ person.name }}</strong> <strong>{{ currency }}{{ balance|abs_val }}</strong>.
+          {% else %}
+            You and {{ person.name }} are <strong>settled</strong>.
+          {% endif %}
+        </p>
+        <p class="mb-0 text-secondary small">
+          This is based on ledger entries linked to {{ person.name }}.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tracking Preference Section -->
+  <div class="col-md-8">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title mb-2">Tracking preference</h5>
+
+        {# Use default "" then lower() to avoid missing-attribute errors and for case-insensitive compare #}
+        {% with pref=person.tracking_preference|default:""|lower %}
+          {% if pref == "track" %}
+            <p class="text-success fw-semibold mb-2">✔ Actively tracking balances with {{ person.name }}</p>
+          {% elif pref == "no_track" or pref == "do_not_track" %}
+            <p class="text-danger fw-semibold mb-2">✘ Not tracking balances with {{ person.name }}</p>
+          {% elif pref == "ask" %}
+            <p class="text-warning fw-semibold mb-2">? Asking every time</p>
+          {% else %}
+            <p class="text-secondary fw-semibold mb-2">? Preference not set</p>
+          {% endif %}
+        {% endwith %}
+
+        <div class="d-flex gap-2">
+          <a href="{% url 'person-change-tracking' person.pk %}" class="btn btn-outline-primary btn-sm">
+            Change tracking preference
+          </a>
+
+          {# Quick "Disable tracking" button (POST) - will archive via view if implemented #}
+          <form method="post" action="{% url 'people-set-no-track' person.pk %}" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="btn btn-outline-danger btn-sm">Stop tracking</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions + adjust wizard -->
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title mb-2">Actions</h5>
+        <p class="mb-0 text-secondary small">
+          Use these actions to settle or record what actually happened with {{ person.name }}.
+        </p><br>
+
+        <div class="d-flex flex-wrap gap-2 mb-2">
+          <!-- Mark fully settled -->
+          <form method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="mark_settled">
+            <button type="submit" class="btn btn-outline-secondary btn-sm">
+              Mark fully settled
+            </button>
+          </form>
+
+          <!-- Open wizard -->
+          <button type="button" class="btn btn-outline-primary btn-sm" id="manualAdjustBtn">
+            Adjust via income/expense
+          </button>
+        </div>
+
+        <!-- Adjust wizard form (hidden by default) -->
+        <div id="manualAdjustSection" class="card card-body p-3 mt-2" style="display:none;">
+          <h6 class="card-text mb-2">
+            Tell Kharcha what actually happened. We'll send you to the right income/expense form.
+          </h6>
+
+          <!-- NOTE: id="manualAdjustForm" added for modal interception -->
+          <form method="post" id="manualAdjustForm" class="row g-2">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="manual_adjust">
+
+            <!-- Amount -->
+            <div class="col-md-3">
+              <label class="form-label">Amount</label>
+              <input type="number" name="amount" step="0.01" min="0.01"
+                     class="form-control" required>
+            </div>
+
+            <!-- What happened -->
+            <div class="col-md-5">
+              <label class="form-label d-block">What happened?</label>
+
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="direction" id="dirTheyPaid"
+                       value="they_paid" checked>
+                <label class="form-check-label" for="dirTheyPaid">
+                  They repaid you
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="direction" id="dirYouPaid"
+                       value="you_paid">
+                <label class="form-check-label" for="dirYouPaid">
+                  You repaid them
+                </label>
+              </div>
+
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="direction" id="dirBorrowed"
+                       value="i_borrowed">
+                <label class="form-check-label" for="dirBorrowed">
+                  You borrowed from them
+                </label>
+              </div>
+            </div>
+
+            <!-- Note -->
+            <div class="col-md-4">
+              <label class="form-label">Note (optional)</label>
+              <input type="text" name="note" class="form-control"
+                     placeholder="e.g. Cash repayment, new loan, correction">
+            </div>
+
+            <div class="col-12 mt-2">
+              <button type="submit" class="btn btn-primary btn-sm">
+                Continue
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<hr>
+<!-- ================= DANGEROUS ACTIONS ================= -->
+<div class="card border-danger mb-4">
+  <div class="card-body">
+    <h5 class="card-title text-danger mb-2">Danger zone</h5>
+
+    <p class="text-danger small mb-2 fw-semibold">
+      Deleting a person will permanently remove them from People and Archived lists.
+      All balance history with {{ person.name }} will be deleted.
+      <strong>This cannot be undone.</strong>
+    </p>
+
+    <form method="post"
+          action="{% url 'person-delete' person.pk %}"
+          onsubmit="return confirm(
+            'Delete {{ person.name }} permanently?\n\n' +
+            'This will remove them from People and delete all related balance history.\n\n' +
+            'This action cannot be undone.'
+          );">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger btn-sm show-light">
+        Delete {{ person.name }} permanently
+      </button>
+      <button type="submit" class="btn btn-outline-danger fw-bold show-dark">
+        Delete {{ person.name }} permanently
+      </button>
+    </form>
+  </div>
+</div>
+
+
+<!-- Ledger entries (separate card, full width) -->
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Ledger entries</h5>
+
+    {% if ledger_page %}
+      <div class="table-responsive">
+        <table class="table table-striped table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Source</th>
+              <th>Note</th>
+              <th class="text-end">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for entry in ledger_page %}
+              <tr{% if entry.archived %} class="table-secondary"{% endif %}>
+                <td data-label="Date">{{ entry.created_at|date:"Y-m-d H:i" }}</td>
+                <td data-label="Source">{{ entry.get_source_type_display }}</td>
+                <td data-label="Note">{{ entry.note|default:"—" }}</td>
+                <td class="text-end">
+                  {% if entry.amount > 0 %}
+                    <span class="text-success">+{{ currency }}{{ entry.amount }}</span>
+                  {% else %}
+                    <span class="text-danger">-{{ currency }}{{ entry.amount|abs_val }}</span>
+                  {% endif %}
+                  {% if entry.archived %}
+                    <small class="text-secondary"> (archived)</small>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if ledger_page.has_other_pages %}
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        {% if ledger_page.has_previous %}
+          <a class="btn btn-sm btn-outline-secondary"
+            href="?page={{ ledger_page.previous_page_number }}">
+            ← Previous
+          </a>
+        {% else %}
+          <span></span>
+        {% endif %}
+
+        <span class="text-secondary small">
+          Page {{ ledger_page.number }} of {{ ledger_page.paginator.num_pages }}
+        </span>
+
+        {% if ledger_page.has_next %}
+          <a class="btn btn-sm btn-outline-secondary"
+            href="?page={{ ledger_page.next_page_number }}">
+            Next →
+          </a>
+        {% else %}
+          <span></span>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    {% else %}
+      <p class="mb-0 text-secondary">
+        No ledger entries yet for {{ person.name }}.
+        Once expenses, income, or adjustments are linked,
+        they will appear here.
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Repayment-warning modal (shows when user picks "They repaid you" but balance < 0) -->
+<div class="modal fade" id="repaymentWarningModal" tabindex="-1" aria-labelledby="repaymentWarningLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="repaymentWarningLabel">Are you sure?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="repaymentWarningText">
+          You currently owe <strong>{{ person.name }}</strong> <strong>{{ currency }}{{ balance|abs_val }}</strong>.<br>
+          If they gave you money for borrowing, please choose <strong>“You borrowed from them”</strong> instead.
+        </p>
+        <p class="mb-0 text-secondary small">
+          “They repaid you” should only be used if <strong>{{ person.name }}</strong> currently owes you.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" id="repayModalCancelBtn" data-bs-dismiss="modal">Go back & change</button>
+        <button type="button" class="btn btn-secondary" id="repayModalSwitchBtn">Switch to “You borrowed from them” & continue</button>
+        <button type="button" class="btn btn-primary" id="repayModalProceedBtn">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="zeroBalanceIncomeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Record as Income?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          You and <strong>{{ person.name }}</strong> are currently settled (Balance is 0).
+        </p>
+        <p>
+          Since they don't owe you anything, this money will be saved as <strong>Income</strong> and 
+          <strong>will not affect</strong> the balance with {{ person.name }}.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" id="zeroBalanceProceedBtn">Proceed to Add Income</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const manualBtn = document.getElementById('manualAdjustBtn');
+  const manualSection = document.getElementById('manualAdjustSection');
+
+  if (manualBtn && manualSection) {
+    manualBtn.addEventListener('click', function () {
+      if (manualSection.style.display === 'none' || manualSection.style.display === '') {
+        manualSection.style.display = 'block';
+      } else {
+        manualSection.style.display = 'none';
+      }
+    });
+  }
+
+  (function () {
+    
+    const balanceRaw = "{{ balance|stringformat:'f'|default:'0' }}"; 
+    const balance = Number(balanceRaw) || 0;
+
+    const manualForm = document.getElementById('manualAdjustForm');
+    
+    // Only looking for the Modals that actually exist in your HTML
+    const repayModalEl = document.getElementById('repaymentWarningModal');
+    const zeroIncModalEl = document.getElementById('zeroBalanceIncomeModal'); 
+
+    // Bootstrap modal helpers
+    let repayModal = null;
+    let zeroIncModal = null;
+
+    if (typeof bootstrap !== 'undefined') {
+      if (repayModalEl) repayModal = new bootstrap.Modal(repayModalEl);
+      if (zeroIncModalEl) zeroIncModal = new bootstrap.Modal(zeroIncModalEl);
+    }
+
+    if (!manualForm) return;
+
+    manualForm.addEventListener('submit', function (ev) {
+      const selected = manualForm.querySelector('input[name="direction"]:checked');
+      const dir = selected ? selected.value : null;
+
+      // --- CASE 1: "They repaid you" but YOU owe THEM (Negative Balance) ---
+      // Uses the existing Repayment Warning Modal
+      if (dir === 'they_paid' && balance < 0) {
+        ev.preventDefault();
+        if (repayModal) {
+          repayModal.show();
+        } else {
+          // Fallback logic from your original code
+          const proceed = confirm(
+            `You currently owe {{ person.name }} {{currency}}${Math.abs(balance)}.\n\n` +
+            `If they gave you money for borrowing, choose 'You borrowed from them'.\n\n` 
+          );
+          if (proceed) manualForm.submit();
+        }
+        return;
+      }
+
+      // --- CASE 2: "They repaid you" but Balance is ZERO (Income Logic) ---
+      // Uses the existing Zero Income Modal
+      if (dir === 'they_paid' && balance === 0) {
+        ev.preventDefault();
+        if (zeroIncModal) {
+          zeroIncModal.show();
+        } else {
+          // Fallback logic from your original code
+          const proceed = confirm(
+            `Balance is 0. This will be recorded as Income and won't affect the balance.\n\nProceed?`
+          );
+          if (proceed) manualForm.submit();
+        }
+        return;
+      }
+
+      // --- CASE 3: "You repaid them" but Balance is ZERO ---
+      // Modal removed -> Using your original confirm message directly
+      if (dir === 'you_paid' && balance === 0) {
+        ev.preventDefault();
+        const proceed = confirm(
+          `Balance is 0. This will be recorded as a new Expense.\n\nProceed?`
+        );
+        if (proceed) manualForm.submit();
+        return;
+      }
+
+      // --- CASE 4: "You repaid them" but THEY owe YOU (Positive Balance) ---
+      // Modal removed -> Using your original confirm message directly
+      if (dir === 'you_paid' && balance > 0) {
+        ev.preventDefault();
+        const ok = confirm(
+          `You cannot record "You repaid {{ person.name }}" because {{ person.name }} currently owes you {{currency}}${balance}.\n\n` +
+          `If you paid for something on {{ person.name }}'s behalf, record it as an Expense instead.\n\nProceed?`
+        );
+        if (ok) manualForm.submit();
+        return;
+      }
+    });
+
+    // --- BUTTON EVENT LISTENERS (Only for the 2 existing modals) ---
+
+    // 1. Repayment Warning Modal Buttons
+    const switchBtn = document.getElementById('repayModalSwitchBtn');
+    const proceedBtn = document.getElementById('repayModalProceedBtn');
+    const cancelBtn = document.getElementById('repayModalCancelBtn');
+
+    if (switchBtn) {
+      switchBtn.addEventListener('click', function () {
+        const borrowedRadio = manualForm.querySelector('input[name="direction"][value="i_borrowed"]');
+        if (borrowedRadio) borrowedRadio.checked = true;
+        if (repayModal) repayModal.hide();
+        setTimeout(() => manualForm.submit(), 150);
+      });
+    }
+    if (proceedBtn) {
+      proceedBtn.addEventListener('click', function () {
+        if (repayModal) repayModal.hide();
+        setTimeout(() => manualForm.submit(), 150);
+      });
+    }
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', function () {
+        if (repayModal) repayModal.hide();
+      });
+    }
+
+    // 2. Zero Balance INCOME Modal Button
+    const goIncomeBtn = document.getElementById('zeroBalanceProceedBtn');
+    if (goIncomeBtn) {
+      goIncomeBtn.addEventListener('click', function () {
+        if (zeroIncModal) zeroIncModal.hide();
+        setTimeout(() => manualForm.submit(), 150);
+      });
+    }
+
+  })();
+</script>
+
+
+{% endblock %}

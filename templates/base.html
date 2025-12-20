@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kharcha</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  >
+
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+</head>
+
+<body class="bg-light" data-theme="light">
+
+<nav class="navbar navbar-expand-lg mb-4 py-2 shadow-sm custom-navbar 
+{% if request.user.is_authenticated %}sticky-top{% endif %}">
+  <div class="container-lg">
+    
+    <a class="navbar-brand fs-3 fw-bold" href="{% url 'home' %}">
+        Kharcha
+    </a>
+
+    <button class="navbar-toggler border-0 shadow-none px-3 py-2 rounded-pill" 
+          type="button" 
+          data-bs-toggle="collapse" 
+          data-bs-target="#navbarSupportedContent"
+          style="background-color: var(--bg); border: 1px solid var(--border) !important;">
+      
+      <div class="d-flex align-items-center gap-2">
+          <span class="small fw-bold text-uppercase" style="color: var(--nav-text); letter-spacing: 1px;">Menu</span>
+          <i class="bi bi-grid-fill fs-5" style="color: var(--nav-text);"></i>
+      </div>
+
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
+        {% if request.user.is_authenticated %}
+          <li class="nav-item px-2"><a class="nav-link fw-medium" href="{% url 'my-expenses' %}">My Expenses</a></li>
+          <li class="nav-item px-2"><a class="nav-link fw-medium" href="{% url 'income-list' %}">Income</a></li>
+          <li class="nav-item px-2"><a class="nav-link fw-medium" href="{% url 'people-list' %}">Balances</a></li>
+          <li class="nav-item px-2"><a class="nav-link fw-medium" href="{% url 'profile' %}">Profile</a></li>
+        {% endif %}
+      </ul>
+
+      <ul class="navbar-nav ms-auto align-items-center gap-3">
+        <li class="nav-item">
+          <button type="button" class="btn btn-nav-theme rounded-circle p-2 lh-1" onclick="toggleTheme()" style="width: 40px; height: 40px;">
+             <i id="theme-icon" class="bi bi-moon-stars-fill"></i>
+          </button>
+        </li>
+
+        {% if request.user.is_authenticated %}
+          <li class="nav-item d-flex align-items-center me-3">
+            <span class="fw-bold opacity-50 me-1">Hi,</span>
+            {% if request.session.is_guest_session %}
+            <span class="fw-bold">Guest</span>
+            {% else %}
+            <span class="fw-bold">{{ request.user.get_short_name|default:request.user.first_name|default:request.user.username }}</span>
+            {% endif %}
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-outline-danger px-4" href="{% url 'logout' %}">Logout</a>
+          </li>
+
+        {% else %}
+          <li class="nav-item">
+            <a class="btn btn-nav-theme px-4" href="{% url 'login' %}">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-warning px-4 fw-bold text-dark" href="{% url 'register' %}">Sign up</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+    <!-- ================= PERSISTENT SESSION BANNER ================= -->
+  {% if request.session.pending_banner %}
+    <div class="mt-2 position-relative">
+      <div class="alert alert-info fade show" role="alert">
+        {{ request.session.pending_banner.html|safe }}
+
+        <form method="post"
+              action="{% url 'clear-pending-banner' %}"
+              class="position-absolute top-0 end-0 m-2">
+          {% csrf_token %}
+          <button type="submit" class="btn-close" aria-label="Close"></button>
+        </form>
+      </div>
+    </div>
+  {% endif %}
+
+
+  <!-- ================= NORMAL DJANGO MESSAGES ================= -->
+  {% if messages %}
+    <div class="mt-2">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+          {{ message|safe }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  /**
+   * Update the theme toggle icon based on the active theme.
+   *
+   * @param {string} theme - Current theme ("light" or "dark")
+   */
+  function updateIcon(theme) {
+    const icon = document.getElementById('theme-icon');
+
+    // Guard clause: exit if the theme icon element is not present
+    if (!icon) return;
+
+    if (theme === 'dark') {
+      // Dark theme active: show sun icon (indicates switch to light)
+      icon.classList.remove('bi-moon-stars-fill');
+      icon.classList.add('bi-sun-fill');
+    } else {
+      // Light theme active: show moon icon (indicates switch to dark)
+      icon.classList.remove('bi-sun-fill');
+      icon.classList.add('bi-moon-stars-fill');
+    }
+  }
+
+  /**
+   * Initialize theme on page load.
+   * Restores the previously selected theme from localStorage.
+   */
+  (function () {
+    const saved = localStorage.getItem('theme') || 'light';
+    document.body.setAttribute('data-theme', saved);
+    updateIcon(saved);
+  })();
+
+  /**
+   * Toggle between light and dark themes.
+   * Persists the selected theme to localStorage.
+   */
+  function toggleTheme() {
+    const body = document.body;
+    const current =
+      body.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    const next = current === 'light' ? 'dark' : 'light';
+
+    body.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateIcon(next);
+  }
+</script>
+
+<script>
+  /**
+   * Submit a POST request to the given URL using a dynamically created form.
+   * Automatically includes the CSRF token if present in the page.
+   *
+   * @param {string} url - Target URL for the POST request
+   */
+  function postTo(url) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = url;
+
+    const csrf = document.querySelector(
+      'input[name="csrfmiddlewaretoken"]'
+    );
+    if (csrf) {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'csrfmiddlewaretoken';
+      input.value = csrf.value;
+      form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  /**
+   * Intercept clicks on links marked with `data-post-url`
+   * and submit a POST request instead of performing navigation.
+   */
+  document.addEventListener('click', function (e) {
+    const link = e.target.closest('a[data-post-url]');
+    if (!link) return;
+
+    e.preventDefault();
+    postTo(link.getAttribute('data-post-url'));
+  });
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="mb-3">My Income</h1>
+
+  <!-- Month navigation bar (same pattern as expenses) -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <div class="btn-group" role="group">
+        <!-- Previous month -->
+        <a href="?{% if month_base_qs %}{{ month_base_qs }}&{% endif %}from_date={{ prev_from_date }}&to_date={{ prev_to_date }}"
+           class="btn btn-sm btn-outline-secondary">
+          &laquo;
+        </a>
+
+        <!-- Current month label -->
+        <span class="rounded px-3 py-1 fw-bold small text-secondary">
+          {{ month_label }}
+        </span>
+
+        <!-- Next month (disabled if in future) -->
+        {% if has_next_month %}
+          <a href="?{% if month_base_qs %}{{ month_base_qs }}&{% endif %}from_date={{ next_from_date }}&to_date={{ next_to_date }}"
+             class="btn btn-sm btn-outline-secondary">
+            &raquo;
+          </a>
+        {% else %}
+          <button class="btn btn-sm btn-outline-secondary" disabled>&raquo;</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div>
+      <!-- This Month shortcut -->
+      <a href="?{% if month_base_qs %}{{ month_base_qs }}&{% endif %}from_date={{ this_from_date }}&to_date={{ this_to_date }}"
+         class="btn btn-sm btn-outline-primary">
+        This Month
+      </a>
+    </div>
+  </div>
+
+  <!-- Filter form -->
+  <form method="get" class="row g-2 mb-3 align-items-end">
+    <!-- From date -->
+    <div class="col-md-3">
+      <label class="form-label">From date</label>
+      <input type="date" name="from_date" value="{{ from_date }}" class="form-control">
+    </div>
+
+    <!-- To date -->
+    <div class="col-md-3">
+      <label class="form-label">To date</label>
+      <input type="date" name="to_date" value="{{ to_date }}" class="form-control">
+    </div>
+
+    <!-- Source -->
+    <div class="col-md-3">
+      <label class="form-label">Source</label>
+      <select name="source" class="form-select">
+        <option value="all" {% if selected_source == 'all' %}selected{% endif %}>All</option>
+        <option value="salary_wages" {% if selected_source == 'salary_wages' %}selected{% endif %}>Salary / Wages</option>
+        <option value="business" {% if selected_source == 'business' %}selected{% endif %}>Business Income</option>
+        <option value="investment" {% if selected_source == 'investment' %}selected{% endif %}>Investment Income</option>
+        <option value="refund" {% if selected_source == 'refund' %}selected{% endif %}>Refund / Reimbursement</option>
+        <option value="gift_support" {% if selected_source == 'gift_support' %}selected{% endif %}>Gift / Support Money</option>
+        <option value="loan" {% if source == 'loan' %}selected{% endif %}>Loan</option>
+        <option value="loan_repayment" {% if selected_source == 'loan_repayment' %}selected{% endif %}>Loan Repayment</option>
+        <option value="other" {% if selected_source == 'other' %}selected{% endif %}>Other</option>
+      </select>
+    </div>
+
+    <!-- Person -->
+    <div class="col-md-3">
+      <label class="form-label">Person</label>
+      <select name="person" class="form-select">
+        <option value="all" {% if selected_person == 'all' %}selected{% endif %}>All</option>
+        {% for p in person_list %}
+          <option value="{{ p }}" {% if selected_person == p %}selected{% endif %}>{{ p }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Payment Type -->
+    <div class="col-md-3">
+      <label class="form-label">Payment Type</label>
+      <select name="payment_type" class="form-select">
+        <option value="all" {% if payment_type == 'all' %}selected{% endif %}>All</option>
+        <option value="cash" {% if payment_type == 'cash' %}selected{% endif %}>Cash</option>
+        <option value="upi" {% if payment_type == 'upi' %}selected{% endif %}>UPI</option>
+        <option value="card" {% if payment_type == 'card' %}selected{% endif %}>Card</option>
+        <option value="netbanking" {% if payment_type == 'netbanking' %}selected{% endif %}>Net Banking</option>
+        <option value="wallet" {% if payment_type == 'wallet' %}selected{% endif %}>Wallet</option>
+        <option value="other" {% if payment_type == 'other' %}selected{% endif %}>Other</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100 mt-2">Filter</button>
+    </div>
+  </form>
+
+  <p class="mb-3 d-flex gap-2">
+    <a href="{% url 'income-add' %}?next={{ request.get_full_path|urlencode }}"
+      class="btn btn-success btn-sm">
+      + Add Income
+    </a>
+
+    {% if has_results %}
+    <a
+      href="{% url 'income-download' %}?{{ request.GET.urlencode }}"
+      class="btn btn-outline-secondary btn-sm"
+    >
+      Download CSV
+    </a>
+  {% else %}
+  <span title="No records to download">
+    <button
+      class="btn btn-outline-secondary btn-sm"
+      disabled
+      title="No data to download"
+    >
+      Download CSV
+    </button>
+  </span>
+  {% endif %}
+
+  </p>
+
+
+  <!-- Summary -->
+  <h2 class="h4 mb-3">Summary</h2>
+
+  {% if has_results %}
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card border-success">
+          <div class="card-body">
+            <h5 class="card-title">Total Income</h5>
+            <p class="card-text fs-5 mb-0">{{ currency }}{{ total }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <p class="text-secondary">
+      No income found for this filter. Try broadening your filters.
+    </p>
+  {% endif %}
+
+  <!-- Income table -->
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">Income</h5>
+      <div class="table-responsive">
+        <table class="table table-striped table-sm align-middle">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Source</th>
+              <th>Party</th>
+              <th>Payment Type</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for inc in incomes %}
+              <tr>
+                <td data-label="Date">
+                    {{ inc.date }}
+                </td>
+
+                <td data-label="Amount" class="fw-bold text-success">
+                    {{ currency }}{{ inc.amount }}
+                </td>
+
+                <td data-label="Source">
+                    {{ inc.get_source_display }}
+                </td>
+
+                <td data-label="Person">
+                    {{ inc.person|default:"—" }}
+                </td>
+
+                <td data-label="Payment Mode">
+                    {{ inc.get_payment_type_display|default:"—" }}
+                </td>
+
+                <td data-label="Description">
+                    {{ inc.description|truncatechars:30|default:"—" }}
+                </td>
+                <td>
+                  <a href="{% url 'income-edit' inc.pk %}?next={{ request.get_full_path|urlencode }}"
+                     class="btn btn-sm btn-outline-primary">
+                    Edit
+                  </a>
+
+                  <!-- Delete button triggers modal -->
+                  <button type="button"
+                          class="btn btn-sm btn-outline-danger ms-1"
+                          data-bs-toggle="modal"
+                          data-bs-target="#deleteIncomeModal"
+                          data-delete-url="{% url 'income-delete' inc.pk %}?next={{ request.get_full_path|urlencode }}"
+                          data-inc-date="{{ inc.date }}"
+                          data-inc-amount="{{ inc.amount }}"
+                          data-inc-source="{{ inc.get_source_display }}"
+                          data-inc-person="{{ inc.person|default:'—' }}"
+                          data-inc-description="{{ inc.description|default:'—' }}">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center text-secondary">
+                  No income found for this filter.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        </div>
+
+        {% if page_obj.has_other_pages %}
+          <nav aria-label="Income pagination" class="mt-3">
+            <ul class="pagination pagination-sm">
+
+              {% if page_obj.has_previous %}
+                <li class="page-item">
+                  <a class="page-link"
+                     href="?{% if base_querystring %}{{ base_querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                    Previous
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link">Previous</span>
+                </li>
+              {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                  <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                  </li>
+                {% else %}
+                  <li class="page-item">
+                    <a class="page-link"
+                       href="?{% if base_querystring %}{{ base_querystring }}&{% endif %}page={{ num }}">
+                      {{ num }}
+                    </a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <li class="page-item">
+                  <a class="page-link"
+                     href="?{% if base_querystring %}{{ base_querystring }}&{% endif %}page={{ page_obj.next_page_number }}">
+                    Next
+                  </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <span class="page-link">Next</span>
+                </li>
+              {% endif %}
+
+            </ul>
+          </nav>
+        {% endif %}
+    
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal (for income) -->
+  <div class="modal fade" id="deleteIncomeModal" tabindex="-1" aria-labelledby="deleteIncomeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteIncomeModalLabel">Delete Income</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <p>Are you sure you want to delete this income entry?</p>
+          <ul class="mb-0 small">
+            <li><strong>Date:</strong> <span id="modalIncDate"></span></li>
+            <li><strong>Amount:</strong> ₹<span id="modalIncAmount"></span></li>
+            <li><strong>Source:</strong> <span id="modalIncSource"></span></li>
+            <li><strong>Person:</strong> <span id="modalIncPerson"></span></li>
+            <li><strong>Description:</strong> <span id="modalIncDescription"></span></li>
+          </ul>
+        </div>
+
+        <div class="modal-footer">
+          <form method="post" id="deleteIncomeForm">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const deleteIncomeModal = document.getElementById('deleteIncomeModal');
+    const deleteIncomeForm = document.getElementById('deleteIncomeForm');
+    const modalIncDate = document.getElementById('modalIncDate');
+    const modalIncAmount = document.getElementById('modalIncAmount');
+    const modalIncSource = document.getElementById('modalIncSource');
+    const modalIncPerson = document.getElementById('modalIncPerson');
+    const modalIncDescription = document.getElementById('modalIncDescription');
+
+    if (deleteIncomeModal) {
+      deleteIncomeModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+
+        const deleteUrl = button.getAttribute('data-delete-url');
+        const incDate = button.getAttribute('data-inc-date');
+        const incAmount = button.getAttribute('data-inc-amount');
+        const incSource = button.getAttribute('data-inc-source');
+        const incPerson = button.getAttribute('data-inc-person');
+        const incDescription = button.getAttribute('data-inc-description');
+
+        deleteIncomeForm.action = deleteUrl;
+
+        modalIncDate.textContent = incDate || '';
+        modalIncAmount.textContent = incAmount || '';
+        modalIncSource.textContent = incSource || '—';
+        modalIncPerson.textContent = incPerson || '—';
+        modalIncDescription.textContent = incDescription || '—';
+      });
+    }
+  </script>
+
+{% endblock %}

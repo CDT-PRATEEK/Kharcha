@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% if messages %}
+  <div class="container mt-2">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+
+{% block content %}
+  
+  {% if is_guest %}
+  <div class="alert alert-warning d-flex align-items-center shadow-sm mb-4" role="alert">
+      <i class="bi bi-incognito fs-3 me-3"></i>
+      <div>
+          <h5 class="alert-heading fw-bold mb-1">You are in Guest Mode</h5>
+          <p class="mb-0 small">
+              Profile settings are disabled. 
+              <a href="{% url 'register' %}" class="fw-bold text-decoration-underline text-dark">Create an account</a> 
+              to customize your currency and save your data permanently.
+          </p>
+      </div>
+  </div>
+  {% endif %}
+
+  
+  <h1 class="mb-3">My Profile</h1>
+
+  {% if not is_guest %}
+  <p class="text-secondary">
+    Logged in as:
+    <strong>
+      {{ request.user.profile.full_name|default:request.user.username }}
+    </strong>
+  </p>
+  {% else %}
+  <p class="text-secondary">
+    Data in this session is temporary and won't be saved.
+  </p>
+  {% endif %}
+
+  <div class="alert alert-secondary mb-4">
+    <strong>This Month’s Net Income - Expenditure:</strong>
+    {{ currency }} {{ monthly_net }}
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <fieldset class="row g-3" {% if is_guest %}disabled{% endif %}>
+
+            <div class="col-md-6">
+              <label class="form-label">Full Name</label>
+              {{ form.full_name }}
+              {% if form.full_name.errors %}
+                <div class="text-danger small">{{ form.full_name.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Default Currency</label>
+              {{ form.default_currency }}
+              {% if form.default_currency.errors %}
+                <div class="text-danger small">{{ form.default_currency.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            {% if not is_guest %}
+            <div class="col-12">
+              <button type="submit" class="btn btn-primary">
+                Save Profile
+              </button>
+            </div>
+            {% endif %}
+
+        </fieldset>
+      </form>
+    </div>
+  </div>
+
+  {% if not is_guest %}
+<hr class="my-5 border-secondary">
+
+<div class="card border-danger bg-transparent mb-5">
+    <div class="card-body">
+        <h5 class="text-danger fw-bold">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>Danger Zone
+        </h5>
+        <p class="text-danger small mb-2 fw-semibold">
+            Once you delete your account, there is no going back. All your expenses, income, and history will be permanently removed.
+        </p>
+        
+        <button type="button" class="btn btn-danger btn-sm show-light" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+            Delete My Account
+        </button>
+        <button type="button" class="btn btn-outline-danger fw-bold show-dark" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+            Delete My Account
+        </button>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: var(--surface); border: 1px solid var(--border);">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold text-danger">Delete Account?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-muted">
+                Are you absolutely sure? This action cannot be undone. 
+                <br><br>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                
+                <form action="{% url 'delete-account' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger fw-bold" id="confirmDeleteBtn" disabled>
+                        Yes, Delete Everything
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Optional: If you want to force them to type "delete" to enable the button
+    // For now, let's keep it simple. If you want the typing logic, tell me.
+    // Right now, I will just enable the button via JS for safety or remove the 'disabled' attribute in HTML.
+    
+    // REMOVE 'disabled' from the button above if you don't want to use JS validation
+    document.getElementById('confirmDeleteBtn').removeAttribute('disabled');
+</script>
+{% endif %}
+{% endblock %}

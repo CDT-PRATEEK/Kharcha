@@ -1,0 +1,954 @@
+/* ============================
+   THEME VARIABLES (The Color Engine)
+   Using Professional "Slate" & "Royal Blue"
+============================ */
+
+/* LIGHT MODE */
+body[data-theme="light"] {
+    /* Backgrounds */
+    --bg: #f8fafc;        /* Cool White */
+    --surface: #ffffff;   /* Pure White */
+    --border: #e2e8f0;    /* Light Gray Border */
+    
+    /* Text */
+    --text: #334155;      /* Dark Slate (Not harsh black) */
+    --muted: #64748b;     /* Muted Slate */
+
+    /* Navbar (Off-White Settings) */
+    --nav-bg: #f1f5f9;     /* Slate-100: A very subtle cool gray */
+    --nav-text: #334155;   /* Slate-700: Dark gray text */
+    --nav-border: #cbd5e1; /* Slate-300: Defines the bottom edge */
+    --nav-btn-color: #334155; /* Dark buttons for light mode */
+    --nav-btn-border: #94a3b8;
+
+    /* Brand Colors */
+    --primary: #2563eb;       /* Royal Blue (Edit Button) */
+    --primary-hover: #1d4ed8;
+    
+    --danger: #ef4444;        /* Classy Red (Delete Button) */
+    --danger-hover: #dc2626;
+
+    --success: #10b981;       /* Emerald Green */
+    --success-hover: #059669;
+}
+
+/* DARK MODE */
+body[data-theme="dark"] {
+    /* Backgrounds */
+    --bg: #020617;        /* Deepest Slate */
+    --surface: #111827;   /* Dark Card Bg */
+    --border: #1f2937;    /* Dark Border */
+
+    /* Text */
+    --text: #e2e8f0;      /* Light Gray */
+    --muted: #94a3b8;     /* Muted Gray */
+
+    /* Navbar (Dark Navy Settings) */
+    --nav-bg: #020617;    /* Matches BG for seamless look */
+    --nav-text: #e2e8f0;  /* White Text */
+    --nav-border: #1f2937;
+    --nav-btn-color: #f8fafc; /* White buttons for dark mode */
+    --nav-btn-border: #f8fafc;
+
+    /* Brand Colors (Slightly lighter for dark mode readability) */
+    --primary: #3b82f6;       /* Lighter Royal Blue */
+    --primary-hover: #2563eb;
+    
+    --danger: #f87171;        /* Soft Red */
+    --danger-hover: #ef4444;
+
+    --success: #34d399;       /* Soft Emerald */
+    --success-hover: #10b981;
+}
+
+/* ============================
+   GLOBAL RESET
+============================ */
+
+/* ADD THIS BLOCK FIRST: It locks the scale */
+
+
+body.bg-light {
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================
+   NAVBAR (SMART THEME UPDATE)
+   Replaces the old hardcoded dark navbar
+============================ */
+
+/* 1. Apply Variable Colors */
+.custom-navbar {
+    background-color: var(--nav-bg) !important;
+    border-bottom: 1px solid var(--nav-border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Softer shadow */
+    transition: background-color 0.3s ease;
+}
+
+/* 2. Brand & Links Colors */
+.custom-navbar .navbar-brand,
+.custom-navbar .nav-link,
+.custom-navbar .navbar-text {
+    color: var(--nav-text) !important;
+}
+
+.custom-navbar .navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.custom-navbar .nav-link {
+    font-weight: 500;
+}
+
+.custom-navbar .nav-link:hover,
+.custom-navbar .nav-link.active {
+    opacity: 0.7; /* Simple fade effect */
+}
+
+/* 3. Theme Toggle Button Styling */
+.theme-toggle {
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--nav-text);
+    padding: 0.2rem 0.8rem;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+/* 4. Smart Button Class (Replaces btn-outline-light) */
+.btn-nav-theme {
+    color: var(--nav-btn-color);
+    border: 1px solid var(--nav-btn-border);
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.btn-nav-theme:hover {
+    background-color: var(--nav-btn-color);
+    color: var(--nav-bg); /* Invert text on hover */
+}
+
+/* 5. HAMBURGER MENU FIX */
+/* In Light Mode, invert the colors so the lines turn black */
+body[data-theme="light"] .navbar-toggler-icon {
+    filter: invert(1);
+}
+body[data-theme="light"] .navbar-toggler {
+    border-color: rgba(0,0,0,0.1) !important;
+}
+
+/* ============================
+   CARDS
+============================ */
+
+.card {
+    background-color: var(--surface) !important;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    color: var(--text) !important;
+}
+
+.auth-page {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.auth-title { font-weight: 700; }
+.auth-subtitle { color: var(--muted); font-size: 0.9rem; }
+
+/* ============================
+   FORMS
+============================ */
+
+.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.form-control,
+.form-select {
+    background-color: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    border-radius: 0.5rem !important;
+    padding: 0.6rem 0.8rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent) !important;
+}
+
+/* ============================
+   BUTTONS
+============================ */
+
+/* 1. SOLID BUTTONS */
+.btn-primary {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: #ffffff;
+}
+.btn-primary:hover {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+}
+
+.btn-danger {
+    background-color: var(--danger) !important;
+    border-color: var(--danger) !important;
+}
+.btn-danger:hover {
+    background-color: var(--danger-hover) !important;
+    border-color: var(--danger-hover) !important;
+}
+
+/* 2. OUTLINE BUTTONS */
+.btn-outline-primary {
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    background-color: transparent !important;
+}
+.btn-outline-primary:hover {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+    border-color: var(--primary) !important;
+}
+
+.btn-outline-danger {
+    color: var(--danger) !important;
+    border-color: var(--danger) !important;
+    background-color: transparent !important;
+}
+.btn-outline-danger:hover {
+    background-color: var(--danger) !important;
+    color: #ffffff !important;
+    border-color: var(--danger) !important;
+}
+
+/* Success Button */
+.btn-success {
+    background-color: var(--success) !important;
+    border-color: var(--success) !important;
+    color: #fff;
+}
+.btn-success:hover {
+    background-color: var(--success-hover) !important;
+}
+
+/* ============================
+   TABLES
+============================ */
+
+/* ============================
+   TABLES (Merged: Dense + Striped)
+============================ */
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: transparent;
+    --bs-table-hover-bg: transparent;
+    
+    width: 100%;
+    margin-bottom: 0; /* Fits better inside cards */
+    vertical-align: middle;
+    font-size: 0.875rem; /* Industry Standard Text Size */
+    border-color: var(--border);
+}
+
+/* HEADERS: Contrast background & Tight padding */
+.table th {
+    background-color: var(--bg) !important; /* Light Gray Header */
+    color: var(--muted) !important;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem; /* Dense padding */
+    border-bottom: 1px solid var(--border);
+}
+
+/* CELLS: White background & Tight padding */
+.table td {
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
+    padding: 0.75rem 1rem; /* Dense padding */
+    border-bottom: 1px solid var(--border);
+    box-shadow: none !important; /* Reset default shadow */
+}
+
+/* --- STRIPED ROWS FIX (The Shadow Method) --- */
+/* We use box-shadow to draw a gray tint ON TOP of the white background */
+
+/* Light Mode Stripes */
+body[data-theme="light"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+    /* 2-3% Black tint */
+    box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.025) !important;
+}
+
+/* Dark Mode Stripes */
+body[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+    /* 3-4% White tint */
+    box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.035) !important;
+}
+
+/* --- HOVER EFFECT --- */
+/* Make the hover slightly darker/lighter than the stripe */
+
+/* Light Mode Hover */
+body[data-theme="light"] .table-hover > tbody > tr:hover > * {
+    box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Dark Mode Hover */
+body[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+    box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ============================
+   PAGINATION
+============================ */
+
+.page-link {
+    background-color: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.page-link:hover {
+    background-color: var(--bg) !important;
+    border-color: var(--border) !important;
+    color: var(--primary) !important;
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-item.disabled .page-link {
+    background-color: var(--bg) !important;
+    border-color: var(--border) !important;
+    color: var(--muted) !important;
+    opacity: 0.7;
+}
+
+/* ============================
+   SECONDARY BUTTONS
+============================ */
+
+.btn-outline-secondary {
+    color: var(--muted) !important;
+    border-color: var(--border) !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-secondary:hover:not(:disabled) {
+    background-color: var(--text) !important;
+    border-color: var(--text) !important;
+    color: var(--bg) !important;
+}
+
+.btn:disabled, 
+.btn.disabled,
+fieldset:disabled .btn {
+    opacity: 0.5 !important;
+}
+
+.btn-outline-secondary:disabled {
+    color: var(--muted) !important;
+    border-color: var(--border) !important;
+    background-color: transparent !important; 
+}
+.btn {
+    /* CHANGE: Match the form-control height */
+    padding: 0.45rem 0.9rem;
+    font-size: 0.875rem; 
+    font-weight: 500;
+}
+
+/* ============================
+   UTILITIES & EXTRAS
+============================ */
+
+.text-center.position-relative::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: var(--border);
+    z-index: 0;
+}
+
+.divider-text {
+    position: relative;
+    z-index: 1;
+    background-color: var(--surface);
+    color: var(--muted);
+    padding: 0 15px;
+    font-weight: 500;
+}
+
+.text-secondary {
+    color: var(--muted) !important;
+}
+
+.auth-page {
+  min-height: 75vh;
+}
+
+.google-btn:hover {
+  background-color: var(--bg);
+}
+
+/* Modal Dark Theme Fix */
+[data-theme="dark"] .modal-content {
+    background-color: var(--surface) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+}
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    border-color: var(--border) !important;
+}
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+}
+
+/* Placeholder Fix */
+.form-control::placeholder {
+    color: var(--muted) !important;
+    opacity: 1;
+}
+
+/* Django Form Help Text */
+.text-muted, 
+.form-text, 
+.form-text ul {
+    color: var(--muted) !important;
+}
+
+/* ============================
+   SNAPPY FORM TYPOGRAPHY
+   (Makes standard Bootstrap forms look professional)
+   ============================ */
+
+/* 1. Target the Labels inside any container with class .snappy-labels */
+.snappy-labels label {
+    text-transform: uppercase;
+    font-size: 0.75rem !important; /* Small */
+    font-weight: 700 !important;    /* Bold */
+    letter-spacing: 0.05em;         /* Spaced out */
+    color: var(--muted);            /* Use your theme's muted color */
+    margin-bottom: 0.4rem;
+}
+
+/* 2. Target the asterisk (*) for required fields so it matches */
+.snappy-labels .asteriskField {
+    color: var(--danger);
+    font-size: 0.8rem;
+}
+
+/* 3. Optional: Make the Help Text (hints) look cleaner */
+.snappy-labels .form-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-top: 0.3rem;
+    color: var(--muted);
+}
+
+/* ============================
+   GLOBAL RESET
+============================ */
+/* ============================
+   GLOBAL RESET (Industry Standard)
+============================ */
+
+html {
+    /* 0.875rem = 14px (if browser default is 16px).
+       This instantly shrinks ALL text, buttons, and inputs by 12.5%.
+    */
+    font-size: 87.5% !important; 
+    
+    /* Keeps mobile scale correct */
+    -webkit-text-size-adjust: 100%;
+}
+
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    /* Clean text rendering */
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ============================
+   3. COMPONENT SIZING (Tightening the UI)
+============================ */
+
+/* FORMS: Make them sleek like Linear/Stripe */
+.form-control, 
+.form-select {
+    background-color: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    
+    /* Tighter Padding */
+    padding: 0.45rem 0.75rem !important; 
+    font-size: 0.875rem !important;
+    border-radius: 0.375rem !important;
+}
+
+.form-control:focus, 
+.form-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 20%, transparent) !important;
+}
+
+/* BUTTONS: Match the form height */
+.btn {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+}
+
+
+/* ============================
+   4. AUTH PAGES (Login/Signup Specifics)
+============================ */
+
+/* The Layout Engine */
+.auth-layout {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+}
+.auth-layout .row { flex: 1; }
+
+/* Left Side (Brand) */
+.auth-brand-col {
+    background: linear-gradient(135deg, var(--primary) 0%, #172554 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Right Side (Form) */
+.auth-form-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 1rem;
+}
+
+/* The Magic Box: Limits width to 400px centrally */
+.auth-box {
+    width: 100%;
+    max-width: 400px; /* Industry standard login width */
+}
+
+/* Typography for Forms */
+.snappy-labels label {
+    text-transform: uppercase;
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+}
+
+/* Helper to hide Navbar on auth pages if applied to body */
+body.auth-mode nav, 
+body.auth-mode .navbar {
+    display: none !important;
+}
+
+/* --- RESPONSIVE BACK BUTTON FIX --- */
+
+.auth-back-btn {
+    /* MOBILE SETTINGS */
+    position: relative !important;
+    
+    /* 1. Force it to span the full width so it can align left */
+    width: 100%; 
+    
+    /* 2. Push it to the start (overrides parent centering) */
+    text-align: left; 
+    align-self: flex-start !important;
+    
+    /* 3. Add just a little breathing room from the edge */
+    padding-left: 0.5rem; 
+    margin-bottom: 1.5rem;
+}
+
+/* DESKTOP SETTINGS (iPad and larger) */
+@media (min-width: 768px) {
+    .auth-back-btn {
+        /* Snap to top-left corner */
+        position: absolute !important;
+        top: 1.5rem;  /* Replaces p-4 */
+        left: 1.5rem; /* Replaces p-4 */
+        
+        /* Reset mobile styles */
+        width: auto;
+        margin-bottom: 0;
+        padding-left: 0;
+    }
+}
+
+/* ============================
+   5. UTILITIES
+============================ */
+.text-muted { color: var(--muted) !important; }
+.divider-text {
+    position: relative;
+    z-index: 1;
+    background-color: var(--surface); /* Mask the line */
+    padding: 0 10px;
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+/* Line behind "OR" */
+.position-relative.text-center::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: var(--border);
+    z-index: 0;
+}
+
+.btn-guest {
+    /* LIGHT MODE: Very soft gray background */
+    background-color: #f1f5f9 !important; 
+    color: #2b3037 !important; /* Muted Slate Text */
+    border: 1px solid #e2e8f0 !important;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-guest:hover {
+    background-color: #e2e8f0 !important; /* Slightly darker on hover */
+    color: #334155 !important; /* Darker text */
+}
+
+/* DARK MODE OVERRIDES */
+body[data-theme="dark"] .btn-guest {
+    /* Glassy transparent background */
+    background-color: rgba(255, 255, 255, 0.05) !important; 
+    color: #94a3b8 !important; /* Light Gray Text */
+    border: 1px solid #334155 !important; /* Dark Border */
+}
+
+body[data-theme="dark"] .btn-guest:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important; /* White text on hover */
+    border-color: #475569 !important;
+}
+
+
+.text-danger {
+    color: var(--danger) !important;
+}
+
+/* ASK banner action buttons */
+.ask-banner-row {
+  margin-bottom: 0.4rem;
+  line-height: 1.4;
+}
+
+.ask-btn {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.85rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Yes — Track & apply */
+.ask-yes {
+  background: #e6f4ea;
+  color: #1e7e34;
+  border-color: #b7e1c1;
+}
+.ask-yes:hover {
+  background: #d4edda;
+}
+
+/* Apply once */
+.ask-once {
+  background: #eef2f7;
+  color: #374151;
+  border-color: #d1d5db;
+}
+.ask-once:hover {
+  background: #e5e7eb;
+}
+
+/* No — Don’t track */
+.ask-no {
+  background: #fdecea;
+  color: #b02a37;
+  border-color: #f5c2c7;
+}
+.ask-no:hover {
+  background: #f8d7da;
+}
+
+
+/* ============================
+   SMART EXPORT BUTTON
+   Dark in Light Mode, White in Dark Mode
+============================ */
+
+.btn-outline-contrast {
+    color: var(--heading) !important;        /* Dark Slate (Light) / White (Dark) */
+    border: 1px solid var(--heading) !important;
+    background-color: transparent !important;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-contrast:hover {
+    background-color: var(--heading) !important;
+    color: var(--bg) !important;             /* Inverts text color on hover */
+}
+
+/* Disabled State Fix */
+.btn-outline-contrast:disabled {
+    opacity: 0.5;
+    color: var(--muted) !important;
+    border-color: var(--muted) !important;
+}
+
+
+
+/* =========================================
+    1. GLOBAL LANDING STYLES
+    ========================================= */
+.section-padding { padding: 5rem 0; }
+
+/* Feature Icons */
+.feature-icon {
+    width: 3rem; height: 3rem; border-radius: 0.75rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; margin-bottom: 1rem;
+    background-color: var(--bg); color: var(--primary);
+    border: 1px solid var(--border);
+}
+
+/* Cards */
+.feature-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%; border: 1px solid var(--border);
+}
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1);
+    border-color: var(--primary) !important;
+}
+
+/* =========================================
+    2. HERO SECTION (Dynamic Theme)
+    ========================================= */
+.hero-section {
+    background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+    padding: 5rem 0 6rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--heading);
+    position: relative; overflow: hidden;
+    transition: background 0.3s ease;
+}
+
+.hero-section::before {
+    content: ""; position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    
+    /* CHANGE 1: Use 6% Black (rgba 0,0,0,0.06) instead of var(--border).
+       This makes it visible on white, but very subtle. */
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+        
+    background-size: 40px 40px;
+    
+    mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+    
+    /* CHANGE 2: Set opacity to 1 (we control faintness via the rgba above) */
+    opacity: 1; 
+    pointer-events: none;
+}
+
+/* Dark Mode Overrides */
+body[data-theme="dark"] .hero-section {
+    background: radial-gradient(circle at top, #1e293b 0%, #020617 100%);
+    color: #fff;
+}
+body[data-theme="dark"] .hero-section::before {
+    opacity: 0.1;
+    background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px);
+}
+body[data-theme="dark"] .hero-title { text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+
+/* Browser Window */
+.browser-window {
+    max-width: 900px;
+    background: var(--surface);
+    border-radius: 12px;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); 
+    border: 1px solid var(--border);
+    overflow: hidden; position: relative; z-index: 2;
+}
+body[data-theme="dark"] .browser-window {
+    background: #0f172a;
+    box-shadow: 0 0 0 1px #1e293b, 0 20px 50px -10px rgba(0, 0, 0, 0.5), 0 0 80px -20px rgba(37, 99, 235, 0.15);
+}
+.browser-header {
+    background: var(--bg); padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 8px; align-items: center;
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+/* Spotlight Frame (Clean) */
+.spotlight-frame {
+    border-radius: 12px; overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+.spotlight-frame:hover { transform: translateY(-5px); }
+
+.dev-link { color: var(--muted); font-size: 1.25rem; opacity: 0.6; transition: all 0.2s ease; }
+.dev-link:hover { color: var(--heading); opacity: 1; transform: translateY(-2px); }
+
+
+body {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+/* ============================
+   BUTTON SWAP LOGIC (Light vs Dark)
+============================ */
+
+/* LIGHT MODE: Hide the Dark button */
+body[data-theme="light"] .show-dark {
+    display: none !important;
+}
+body[data-theme="light"] .show-light {
+    display: inline-block !important;
+}
+
+/* DARK MODE: Hide the Light button */
+body[data-theme="dark"] .show-light {
+    display: none !important;
+}
+body[data-theme="dark"] .show-dark {
+    display: inline-block !important;
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+
+/* ============================
+   RESPONSIVE TABLE CARDS (
+============================ */
+
+@media (max-width: 768px) {
+
+    /* --- 1. KILL THE STRIPES (High Specificity Fix) --- */
+    /* We include body[...] here so it overrides your main theme settings */
+    body[data-theme="light"] .table-striped > tbody > tr:nth-of-type(odd) > *,
+    body[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+        box-shadow: none !important; 
+        background-color: transparent !important;
+    }
+
+    /* --- 2. LAYOUT RESET --- */
+    .table, .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+
+    /* Hide Header */
+    .table thead { display: none; }
+
+    /* --- 3. CARD STYLE --- */
+    .table tbody tr {
+        /* Force clean background (No more grey cards) */
+        background-color: var(--surface) !important; 
+        
+        margin-bottom: 1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* --- 4. DATA ROW STYLE --- */
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid var(--border);
+        
+        
+        padding-right: 0.8rem; 
+    }
+
+    /* Remove border from last item */
+    .table td:last-child { border-bottom: 0; }
+
+    /* --- 5. LABELS --- */
+    .table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        color: var(--muted);
+        text-align: left;
+        margin-right: 1rem;
+    }
+    
+    /* Button Row Fix */
+    .table td:last-child {
+        justify-content: flex-end;
+        padding-top: 1rem;
+    }
+    .table td:last-child::before { content: ""; }
+}
