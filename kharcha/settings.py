@@ -222,7 +222,7 @@ ANYMAIL = {
     "BREVO_API_KEY": os.environ.get('BREVO_API_KEY'),
 }
 
-DEFAULT_FROM_EMAIL = os.environ.get('BREVO_API_KEY')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 
 
 
