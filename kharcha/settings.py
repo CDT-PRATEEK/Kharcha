@@ -215,14 +215,9 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # =========================
 # Email Configuration
 
-EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+EMAIL_BACKEND = 'kharcha.gmail_backend.GmailAPIBackend' 
+DEFAULT_FROM_EMAIL = "mykharcha.app@gmail.com"
 
-
-ANYMAIL = {
-    "BREVO_API_KEY": os.environ.get('BREVO_API_KEY'),
-}
-
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
 
 
 
