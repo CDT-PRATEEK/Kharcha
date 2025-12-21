@@ -81,7 +81,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",  #  Google provider
 ]
 
-SITE_ID = 1
+SITE_ID = 2
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",        # default
