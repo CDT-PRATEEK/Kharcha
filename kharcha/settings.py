@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     "income.apps.IncomeConfig",
     "crispy_forms",
     "crispy_bootstrap5",
+    'anymail',
     "allauth",                 #  core allauth
     "allauth.account",         #  email/username login
     "allauth.socialaccount",   #  social logins
@@ -212,21 +213,17 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 
 # =========================
-# Email (SMTP via Gmail)
-# =========================
+# Email Configuration
 
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
 
-EMAIL_HOST = 'smtp-mail.outlook.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_USE_SSL = False
-EMAIL_TIMEOUT = 10
 
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+ANYMAIL = {
+    "BREVO_API_KEY": os.environ.get('BREVO_API_KEY'),
+}
 
-DEFAULT_FROM_EMAIL = f"Kharcha <{EMAIL_HOST_USER}>"
+DEFAULT_FROM_EMAIL = os.environ.get('BREVO_API_KEY')
+
 
 
 
