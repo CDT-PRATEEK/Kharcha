@@ -951,4 +951,17 @@ body[data-theme="dark"] .show-dark {
         padding-top: 1rem;
     }
     .table td:last-child::before { content: ""; }
+
+    .table td.table-empty-msg {
+        display: block !important; 
+        width: 100% !important;
+        text-align: center !important;
+        padding: 2rem 0 !important;
+        border: none !important;
+    }
+
+    
+    .table td.table-empty-msg::before {
+        content: none !important;
+    }
 }
