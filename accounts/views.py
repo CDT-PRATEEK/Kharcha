@@ -4,6 +4,12 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 import uuid
+import os
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Q
 import secrets
 from .forms import ProfileForm  
 from expenses.models import Expense
@@ -142,3 +148,37 @@ def delete_account_view(request):
 
 class SmartPasswordResetView(PasswordResetView):
     form_class = SmartPasswordResetForm
+
+
+@csrf_exempt
+def cleanup_guests(request):
+    
+    secret_key = request.GET.get('key')
+    correct_key = os.environ.get('CLEANUP_KEY')
+    
+    
+    if not correct_key or secret_key != correct_key:
+        return HttpResponse("Unauthorized: Wrong or missing Key", status=403)
+
+    
+    cutoff_date = timezone.now() - timedelta(hours=24)
+
+    old_guests = User.objects.filter(
+        username__startswith='guest_',  
+        email=''                        
+    ).filter(
+        # Last login was over 24 hours ago OR never logged in & joined over 24h ago
+        Q(last_login__lt=cutoff_date) | 
+        Q(last_login__isnull=True, date_joined__lt=cutoff_date)
+    )
+
+    count = old_guests.count()
+
+    if count > 0:
+        old_guests.delete()
+        msg = f'Successfully cleaned up {count} abandoned guest accounts.'
+    else:
+        msg = 'No abandoned guest accounts found.'
+    
+
+    return HttpResponse(msg)

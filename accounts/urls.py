@@ -43,4 +43,6 @@ urlpatterns = [
 
     path('profile/delete/', views.delete_account_view, name='delete-account'),
 
+    path('secret-cleanup-hook/', views.cleanup_guests, name='cleanup_guests'),
+
 ]
