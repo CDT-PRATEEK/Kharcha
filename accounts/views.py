@@ -46,7 +46,7 @@ def guest_login_view(request):
 
     request.session['is_guest_session'] = True
     
-    messages.success(request, "Welcome! You are using a Guest Account.")
+    messages.success(request, "Welcome! You are using a Guest Account.This is a sandbox environment. Guest data is purged automatically on a weekly schedule.")
     
     next_url = request.GET.get('next') or 'my-expenses'
     return redirect(next_url)
