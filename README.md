@@ -1,4 +1,4 @@
-# 💰 Kharcha — Expense & Balance Tracker
+# 💰 Kharcha - Expense & Balance Tracker
 
 Kharcha is a full-stack Django web application that helps users track expenses, income, and personal balances in a simple and practical way.  
 The project focuses on clean backend logic, reliable authentication, and thoughtful handling of real-life money scenarios rather than just basic CRUD features.
@@ -104,18 +104,9 @@ The project focuses on clean backend logic, reliable authentication, and thought
     ```
 </details>
 
-📂 Project Structure
-Plaintext
+<br>
 
-kharcha/
-├── accounts/          # User authentication, profiles, and guest logic
-├── expenses/          # Core expense tracking logic and models
-├── templates/         # HTML templates (Bootstrap 5)
-├── static/            # CSS, JavaScript, and Images
-├── manage.py          # Django entry point
-└── requirements.txt   # Project dependencies
 
-## 🛡️ Automated Guest Cleanup
 
 ## 🛡️ Automated Maintenance
 
@@ -128,4 +119,4 @@ To keep the database efficient while allowing public access, the system implemen
 
 ### 👨‍💻 Author
 
-**[Prateek Sinha]**
+**Prateek Sinha**
