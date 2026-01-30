@@ -67,7 +67,7 @@ The project focuses on clean backend logic, reliable authentication, and thought
 
 1.  **Clone the repository**
     ```bash
-    git clone [https://github.com/CDT-PRATEEK/Kharcha.git](https://github.com/CDT-PRATEEK/Kharcha.git)
+    git clone https://github.com/CDT-PRATEEK/Kharcha.git
     cd kharcha
     ```
 
