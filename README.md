@@ -3,7 +3,7 @@
 Kharcha is a full-stack Django web application that helps users track expenses, income, and personal balances in a simple and practical way.  
 The project focuses on clean backend logic, reliable authentication, and thoughtful handling of real-life money scenarios rather than just basic CRUD features.
 
-🔗 **Live Demo:** https://mykharcha.onrender.com
+🔗 **Live Demo:** [Visit Kharcha](https://mykharcha.onrender.com)
 
 ---
 
